@@ -75,6 +75,39 @@
         { "fieldPath": "tenantId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "inbox_conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "lastMessageAtMs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "inbox_conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "lastMessageAtMs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "inbox_messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "conversationId", "order": "ASCENDING" },
+        { "fieldPath": "createdAtMs", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "inbox_contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tenantId", "order": "ASCENDING" },
+        { "fieldPath": "lastMessageAtMs", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

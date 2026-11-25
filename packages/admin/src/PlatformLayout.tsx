@@ -88,7 +88,7 @@ export default function PlatformLayout() {
         }}
       >
         <div style={{ padding: '0 12px 4px', fontWeight: 700, fontSize: 18 }}>
-          CareMax
+          Relay
         </div>
         <div style={{ padding: '0 12px 24px', fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           SaaS Admin Console

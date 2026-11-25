@@ -14,25 +14,23 @@ export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const primaryNav: NavItem[] = [
-    { path: '/', label: 'Dashboard' },
-    { path: '/visual-diagram', label: 'Visual Diagram' },
-    { path: '/conversations', label: 'Conversations' },
-    { path: '/handoffs', label: 'Handoff Queue' },
+    { path: '/', label: 'Inbox' },
+    { path: '/contacts', label: 'Contacts' },
+    { path: '/whatsapp', label: 'WhatsApp' },
   ];
 
   const navGroups: NavGroup[] = [
     {
-      key: 'agent',
-      label: 'Agent Config',
+      key: 'workspace',
+      label: 'Earlier tools',
       items: [
-        { path: '/agent', label: 'Agent Settings' },
-        { path: '/agent-notes', label: 'Agent Notebook' },
-        { path: '/rag', label: 'Knowledge Base' },
-        { path: '/agent-brain', label: 'Auto Brain' },
+        { path: '/overview', label: 'Overview' },
+        { path: '/conversations', label: 'Widget conversations' },
+        { path: '/handoffs', label: 'Handoff queue' },
+        { path: '/agent', label: 'Agent settings' },
+        { path: '/rag', label: 'Knowledge base' },
         { path: '/integrations', label: 'Integrations' },
-        { path: '/whatsapp', label: 'WhatsApp Agent' },
-        { path: '/embed', label: 'Embed Widget' },
-        ...(isPlatformAdmin ? [{ path: '/advanced-prompts', label: 'Advanced Prompts' }] : []),
+        { path: '/embed', label: 'Embed widget' },
       ],
     },
     {
@@ -57,6 +55,7 @@ export default function Layout() {
   };
 
   const sidebarWidth = isMobile ? 304 : 272;
+  const inboxMode = location.pathname === '/' || location.pathname === '/inbox';
 
   const renderNavLink = ({ path, label }: NavItem, isSubItem = false) => {
     const active = location.pathname === path;
@@ -100,7 +99,7 @@ export default function Layout() {
           zIndex: 1001,
           justifyContent: 'space-between'
         }}>
-          <span style={{ fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em' }}>CareMax</span>
+          <span style={{ fontWeight: 700, color: '#0f172a', letterSpacing: '-0.01em' }}>Relay</span>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             style={{
@@ -144,8 +143,8 @@ export default function Layout() {
               color: '#fff',
               boxShadow: '0 8px 20px rgba(37, 99, 235, 0.25)'
             }}>
-              <div style={{ fontWeight: 700, fontSize: 20 }}>CareMax</div>
-              <div style={{ marginTop: 2, fontSize: 12, opacity: 0.95 }}>Operations Console</div>
+              <div style={{ fontWeight: 700, fontSize: 20 }}>Relay</div>
+              <div style={{ marginTop: 2, fontSize: 12, opacity: 0.95 }}>Customer inbox</div>
             </div>
           </div>
         )}
@@ -295,22 +294,28 @@ export default function Layout() {
 
       <main style={{
         flex: 1,
-        padding: isMobile ? '76px 10px 20px' : '28px 44px',
+        padding: inboxMode ? (isMobile ? '56px 0 0' : 0) : (isMobile ? '76px 10px 20px' : '28px 44px'),
         minWidth: 0,
         marginLeft: isMobile ? 0 : sidebarWidth,
-        background: 'transparent'
+        background: inboxMode ? '#f4f7f5' : 'transparent',
+        height: inboxMode ? '100vh' : undefined,
+        overflow: inboxMode ? 'hidden' : undefined,
+        display: inboxMode ? 'flex' : undefined,
+        flexDirection: inboxMode ? 'column' : undefined,
       }}>
-        <div className="main-content-container" style={{
-          maxWidth: 1060,
-          margin: '0 auto',
-          background: '#fff',
-          padding: isMobile ? '20px' : '40px',
-          borderRadius: isMobile ? '0' : '16px',
-          boxShadow: isMobile ? 'none' : '0 4px 24px rgba(0, 0, 0, 0.05)',
-          minHeight: isMobile ? 'auto' : 'calc(100vh - 80px)'
-        }}>
-          <Outlet />
-        </div>
+        {inboxMode ? <Outlet /> : (
+          <div className="main-content-container" style={{
+            maxWidth: 1060,
+            margin: '0 auto',
+            background: '#fff',
+            padding: isMobile ? '20px' : '40px',
+            borderRadius: isMobile ? '0' : '16px',
+            boxShadow: isMobile ? 'none' : '0 4px 24px rgba(0, 0, 0, 0.05)',
+            minHeight: isMobile ? 'auto' : 'calc(100vh - 80px)'
+          }}>
+            <Outlet />
+          </div>
+        )}
       </main>
     </div>
   );

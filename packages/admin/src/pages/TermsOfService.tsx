@@ -5,14 +5,14 @@ export default function TermsOfService() {
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '56px 24px 72px', lineHeight: 1.72, color: '#1e293b' }}>
       <h1 style={{ marginTop: 0, marginBottom: 12, fontSize: 40, letterSpacing: '-0.02em', color: '#0f172a' }}>Terms of Service</h1>
       <p style={{ marginTop: 0, color: '#475569' }}>
-        These Terms govern access to and use of the CareMax triage chat agent platform. By using CareMax, organizations and
+        These Terms govern access to and use of the Relay customer inbox. By using Relay, businesses and
         authorized users agree to these terms and all applicable law.
       </p>
 
       <h2>1. Service Scope</h2>
       <p>
-        CareMax provides software for AI-assisted triage, workflow support, and human handoff coordination. The platform is
-        a decision-support tool and does not replace licensed medical judgment, emergency services, or clinical diagnosis.
+        Relay provides software for registering a WhatsApp number and answering customer conversations from a shared inbox.
+        Optional assistant replies are drafts sent on the business’s behalf and do not replace the business’s own policies or promises.
       </p>
 
       <h2>2. Account Responsibilities</h2>
@@ -31,8 +31,8 @@ export default function TermsOfService() {
 
       <h2>4. Data and Compliance</h2>
       <p>
-        Customers must use CareMax in compliance with healthcare, privacy, and records regulations applicable to their
-        jurisdiction. CareMax may suspend access where continued use presents legal, security, or safety risk.
+        Businesses must use Relay in compliance with privacy, messaging, and consumer rules that apply to them,
+        including WhatsApp’s business terms. Relay may suspend access where continued use presents legal, security, or safety risk.
       </p>
 
       <h2>5. Billing and Subscription</h2>
@@ -43,13 +43,13 @@ export default function TermsOfService() {
 
       <h2>6. Limitation and Availability</h2>
       <p>
-        CareMax is provided on an "as available" basis. While we aim for high reliability and safety, no platform can guarantee
-        uninterrupted or error-free performance. Organizations remain responsible for clinical governance decisions.
+        Relay is provided on an "as available" basis. While we aim for high reliability, no platform can guarantee
+        uninterrupted or error-free performance. Businesses remain responsible for what their team and assistant tell customers.
       </p>
 
       <h2>7. Support Contact</h2>
       <p>
-        Legal and support inquiries can be sent to <strong>legal@caremax.health</strong> or by phone at{' '}
+        Legal and support inquiries can be sent to <strong>legal@relay.app</strong> or by phone at{' '}
         <strong>+256 782 830524</strong> / <strong>+256 753 190830</strong>.
       </p>
 

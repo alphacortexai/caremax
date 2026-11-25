@@ -1,84 +1,123 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { api } from '../api';
 import { useTenant } from '../TenantContext';
+import './Inbox.css';
 
-type WhatsAppConfigResponse = {
+type WhatsAppSettings = {
   connected: boolean;
-  whatsappNumber?: string;
-  accountSid?: string;
-  accountSidMasked?: string;
-  authTokenMasked?: string;
-  messagingServiceSid?: string;
-  webhookSecretMasked?: string;
-  updatedAt?: string | null;
+  phoneNumberId: string;
+  wabaId: string;
+  displayPhoneNumber: string;
+  verifiedName: string;
+  accessTokenSet: boolean;
+  accessTokenMasked: string;
+  verifyToken: string;
+  appSecretSet: boolean;
+  appSecretMasked: string;
+  autoReplyEnabled: boolean;
+  businessName: string;
+  aiInstructions: string;
+  webhookUrl: string;
+  aiConfigured: boolean;
 };
 
-type FormState = {
-  accountSid: string;
-  authToken: string;
-  whatsappNumber: string;
-  messagingServiceSid: string;
-  webhookSecret: string;
-};
-
-const initialFormState: FormState = {
-  accountSid: '',
-  authToken: '',
-  whatsappNumber: '',
-  messagingServiceSid: '',
-  webhookSecret: '',
+const emptySettings: WhatsAppSettings = {
+  connected: false,
+  phoneNumberId: '',
+  wabaId: '',
+  displayPhoneNumber: '',
+  verifiedName: '',
+  accessTokenSet: false,
+  accessTokenMasked: '',
+  verifyToken: '',
+  appSecretSet: false,
+  appSecretMasked: '',
+  autoReplyEnabled: false,
+  businessName: '',
+  aiInstructions: '',
+  webhookUrl: '',
+  aiConfigured: false,
 };
 
 export default function WhatsAppIntegration() {
   const { tenantId } = useTenant();
-  const [status, setStatus] = useState<WhatsAppConfigResponse>({ connected: false });
-  const [form, setForm] = useState<FormState>(initialFormState);
+  const [settings, setSettings] = useState<WhatsAppSettings>(emptySettings);
+  const [accessToken, setAccessToken] = useState('');
+  const [appSecret, setAppSecret] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const loadConfig = async () => {
+  const load = async () => {
     if (!tenantId) return;
     setLoading(true);
-    setError('');
     try {
-      const res = await api<WhatsAppConfigResponse>(`/tenants/${tenantId}/integrations/whatsapp`);
-      setStatus(res);
-      setForm({
-        accountSid: res.accountSid ?? '',
-        authToken: '',
-        whatsappNumber: res.whatsappNumber ?? '',
-        messagingServiceSid: res.messagingServiceSid ?? '',
-        webhookSecret: '',
-      });
+      const res = await api<WhatsAppSettings>(`/tenants/${tenantId}/integrations/whatsapp-cloud`);
+      setSettings(res);
+      setError('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load WhatsApp settings');
+      setError(e instanceof Error ? e.message : 'Failed to load WhatsApp settings.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    void loadConfig();
+    void load();
   }, [tenantId]);
 
-  const onSubmit = async (event: FormEvent) => {
+  const connect = async (event: FormEvent) => {
     event.preventDefault();
     if (!tenantId) return;
     setSaving(true);
-    setError('');
     setMessage('');
-
+    setError('');
     try {
-      await api(`/tenants/${tenantId}/integrations/whatsapp`, {
+      const res = await api<WhatsAppSettings>(`/tenants/${tenantId}/integrations/whatsapp-cloud`, {
         method: 'PUT',
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          phoneNumberId: settings.phoneNumberId,
+          wabaId: settings.wabaId,
+          displayPhoneNumber: settings.displayPhoneNumber,
+          accessToken,
+          appSecret,
+          verifyToken: settings.verifyToken,
+          autoReplyEnabled: settings.autoReplyEnabled,
+          businessName: settings.businessName,
+          aiInstructions: settings.aiInstructions,
+        }),
       });
-      setMessage('WhatsApp number connected successfully.');
-      await loadConfig();
+      setSettings(res);
+      setAccessToken('');
+      setAppSecret('');
+      setMessage(`Connected${res.verifiedName ? ` as ${res.verifiedName}` : ''}${res.displayPhoneNumber ? ` (${res.displayPhoneNumber})` : ''}.`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save WhatsApp settings');
+      setError(e instanceof Error ? e.message : 'Failed to connect WhatsApp.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveAssistant = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!tenantId) return;
+    setSaving(true);
+    setMessage('');
+    setError('');
+    try {
+      const res = await api<WhatsAppSettings>(`/tenants/${tenantId}/integrations/whatsapp-cloud/assistant`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          autoReplyEnabled: settings.autoReplyEnabled,
+          businessName: settings.businessName,
+          aiInstructions: settings.aiInstructions,
+        }),
+      });
+      setSettings(res);
+      setMessage('Assistant settings saved.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save assistant settings.');
     } finally {
       setSaving(false);
     }
@@ -87,119 +126,124 @@ export default function WhatsAppIntegration() {
   const disconnect = async () => {
     if (!tenantId) return;
     setSaving(true);
-    setError('');
     setMessage('');
+    setError('');
     try {
-      await api(`/tenants/${tenantId}/integrations/whatsapp`, { method: 'DELETE' });
-      setMessage('WhatsApp integration disconnected.');
-      await loadConfig();
+      const res = await api<WhatsAppSettings>(`/tenants/${tenantId}/integrations/whatsapp-cloud`, { method: 'DELETE' });
+      setSettings(res);
+      setMessage('WhatsApp number disconnected. Existing conversations stay in the inbox.');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to disconnect WhatsApp settings');
+      setError(e instanceof Error ? e.message : 'Failed to disconnect WhatsApp.');
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return <div style={{ color: '#64748b' }}>Loading WhatsApp integration...</div>;
-  }
+  const copy = async (value: string) => {
+    await navigator.clipboard.writeText(value);
+    setMessage('Copied.');
+  };
 
-  const webhookUrl = `${window.location.origin.replace('5173', '3001')}/integrations/twilio/whatsapp/webhook/${tenantId}`;
+  if (loading) return <p>Loading WhatsApp settings…</p>;
 
   return (
-    <div style={{ display: 'grid', gap: 20 }}>
+    <div className="settings-grid">
       <div>
-        <h1 style={{ margin: 0, fontSize: 28, color: '#0f172a' }}>WhatsApp Agent</h1>
-        <p style={{ marginTop: 8, color: '#475569' }}>
-          Connect a Twilio WhatsApp number so people can text your agent outside the widget.
-        </p>
+        <p className="inbox-kicker">Channel</p>
+        <h1 style={{ marginTop: 4 }}>Register WhatsApp</h1>
+        <p className="muted">Connect the business WhatsApp number through the official Cloud API. Customer messages land in the shared inbox.</p>
       </div>
 
-      <div style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: 16, background: '#f8fafc' }}>
-        <div style={{ fontWeight: 600, color: '#0f172a' }}>Connection Status</div>
-        <div style={{ marginTop: 8, color: status.connected ? '#047857' : '#b45309', fontWeight: 600 }}>
-          {status.connected ? 'Connected' : 'Not Connected'}
-        </div>
-        {status.connected && (
-          <div style={{ marginTop: 10, color: '#475569', fontSize: 14, display: 'grid', gap: 4 }}>
-            <span>WhatsApp Number: {status.whatsappNumber}</span>
-            <span>Twilio SID: {status.accountSidMasked}</span>
-            <span>Auth Token: {status.authTokenMasked}</span>
-            {status.webhookSecretMasked && <span>Webhook Secret: {status.webhookSecretMasked}</span>}
-          </div>
+      <section className="settings-card">
+        <strong>{settings.connected ? 'Connected' : 'Not connected'}</strong>
+        {settings.connected && (
+          <p className="muted">
+            {settings.verifiedName || 'WhatsApp Business'} · {settings.displayPhoneNumber || settings.phoneNumberId}
+            {settings.accessTokenMasked ? ` · token ${settings.accessTokenMasked}` : ''}
+          </p>
         )}
-      </div>
+        <ol className="steps">
+          <li>In Meta for Developers, add the WhatsApp product to your app.</li>
+          <li>Copy the phone number ID, business account ID, and a permanent access token.</li>
+          <li>Paste the callback URL and verify token below into the WhatsApp webhook configuration.</li>
+          <li>Subscribe the webhook to the messages field.</li>
+        </ol>
+      </section>
 
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12 }}>
-        {[
-          { key: 'accountSid', label: 'Twilio Account SID', required: true },
-          { key: 'authToken', label: 'Twilio Auth Token', required: true },
-          { key: 'whatsappNumber', label: 'Twilio WhatsApp Number (e.g. whatsapp:+14155238886)', required: true },
-          { key: 'messagingServiceSid', label: 'Messaging Service SID (optional)', required: false },
-          { key: 'webhookSecret', label: 'Webhook Secret (optional)', required: false },
-        ].map((field) => (
-          <label key={field.key} style={{ display: 'grid', gap: 6, fontSize: 14, color: '#334155' }}>
-            {field.label}
-            <input
-              type="text"
-              required={field.required}
-              value={form[field.key as keyof FormState]}
-              onChange={(e) => setForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
-              style={{
-                border: '1px solid #cbd5e1',
-                borderRadius: 8,
-                padding: '10px 12px',
-                fontSize: 14,
-              }}
-            />
-          </label>
-        ))}
+      {error && <div className="banner">{error}</div>}
+      {message && <div className="banner ok">{message}</div>}
 
-        <div style={{ fontSize: 13, color: '#64748b', background: '#f8fafc', padding: 12, borderRadius: 8 }}>
-          Configure the Twilio incoming webhook URL as:
-          <div style={{ marginTop: 4, fontFamily: 'monospace', wordBreak: 'break-all', color: '#0f172a' }}>{webhookUrl}</div>
+      <section className="settings-card">
+        <h2 style={{ marginTop: 0 }}>Webhook</h2>
+        <label className="muted">Callback URL</label>
+        <div className="secret-row">
+          <code>{settings.webhookUrl}</code>
+          <button type="button" onClick={() => void copy(settings.webhookUrl)}>Copy</button>
         </div>
+        <label className="muted">Verify token</label>
+        <div className="secret-row">
+          <code>{settings.verifyToken}</code>
+          <button type="button" onClick={() => void copy(settings.verifyToken)}>Copy</button>
+        </div>
+      </section>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button
-            type="submit"
-            disabled={saving}
-            style={{
-              border: 'none',
-              background: '#2563eb',
-              color: '#fff',
-              borderRadius: 8,
-              padding: '10px 14px',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            {saving ? 'Saving...' : status.connected ? 'Update Connection' : 'Connect Number'}
-          </button>
-
-          {status.connected && (
-            <button
-              type="button"
-              disabled={saving}
-              onClick={disconnect}
-              style={{
-                border: '1px solid #fecaca',
-                background: '#fff1f2',
-                color: '#be123c',
-                borderRadius: 8,
-                padding: '10px 14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Disconnect
-            </button>
-          )}
+      <form className="settings-card settings-grid" onSubmit={connect}>
+        <h2 style={{ margin: 0 }}>Number credentials</h2>
+        <label>
+          Phone number ID
+          <input required value={settings.phoneNumberId} onChange={(event) => setSettings((prev) => ({ ...prev, phoneNumberId: event.target.value }))} />
+        </label>
+        <label>
+          WhatsApp Business Account ID
+          <input value={settings.wabaId} onChange={(event) => setSettings((prev) => ({ ...prev, wabaId: event.target.value }))} />
+        </label>
+        <label>
+          Display phone number
+          <input value={settings.displayPhoneNumber} placeholder="+256…" onChange={(event) => setSettings((prev) => ({ ...prev, displayPhoneNumber: event.target.value }))} />
+        </label>
+        <label>
+          Access token {settings.accessTokenSet ? `(saved ${settings.accessTokenMasked})` : ''}
+          <input type="password" value={accessToken} placeholder={settings.accessTokenSet ? 'Leave blank to keep the saved token' : 'Permanent access token'} onChange={(event) => setAccessToken(event.target.value)} />
+        </label>
+        <label>
+          App secret {settings.appSecretSet ? `(saved ${settings.appSecretMasked})` : '(recommended)'}
+          <input type="password" value={appSecret} placeholder={settings.appSecretSet ? 'Leave blank to keep the saved secret' : 'Used to verify webhook signatures'} onChange={(event) => setAppSecret(event.target.value)} />
+        </label>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="primary" type="submit" disabled={saving}>{saving ? 'Checking…' : 'Connect number'}</button>
+          {settings.connected && <button type="button" onClick={() => void disconnect()} disabled={saving}>Disconnect</button>}
         </div>
       </form>
 
-      {message && <div style={{ color: '#047857', fontWeight: 500 }}>{message}</div>}
-      {error && <div style={{ color: '#b91c1c', fontWeight: 500 }}>{error}</div>}
+      <form className="settings-card settings-grid" onSubmit={saveAssistant}>
+        <h2 style={{ margin: 0 }}>AI assistant</h2>
+        <p className="muted">
+          When this is on, new open conversations get an automatic WhatsApp reply. Assigning a conversation to a person pauses the assistant.
+          {!settings.aiConfigured && ' Add GEMINI_API_KEY on the API before auto-replies can be generated.'}
+        </p>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input
+            type="checkbox"
+            checked={settings.autoReplyEnabled}
+            onChange={(event) => setSettings((prev) => ({ ...prev, autoReplyEnabled: event.target.checked }))}
+          />
+          Reply automatically to unassigned open chats
+        </label>
+        <label>
+          Business name
+          <input value={settings.businessName} onChange={(event) => setSettings((prev) => ({ ...prev, businessName: event.target.value }))} />
+        </label>
+        <label>
+          Instructions
+          <textarea
+            rows={5}
+            value={settings.aiInstructions}
+            placeholder="Hours, delivery areas, what the assistant may promise, and when to hand the chat to a person."
+            onChange={(event) => setSettings((prev) => ({ ...prev, aiInstructions: event.target.value }))}
+          />
+        </label>
+        <button className="primary" type="submit" disabled={saving}>Save assistant</button>
+      </form>
     </div>
   );
 }

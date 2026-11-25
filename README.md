@@ -1,12 +1,41 @@
-# CareMax
+# Relay
 
-Multi-tenant SaaS for AI-powered clinical triage chat (symptoms + optional images) with embeddable widget, tenant admin (agent config, RAG), and human handoff. Built with Google Gemini, LangChain, and Firebase.
+Multi-tenant customer inbox. A business registers its WhatsApp number and the team answers every customer from one dashboard. The messaging engine is channel-agnostic; WhatsApp Cloud API is the first channel, connected through the official Graph API and webhooks.
 
 ## Structure
 
-- **packages/api** – Node.js (TypeScript) API: auth, tenants, conversations, agent (LangChain + Gemini), upload, agent-config, handoffs, RAG.
-- **packages/widget** – Embeddable chat UI (React + Vite). Use `embed.html?tenant=...&theme=...` in an iframe or the loader script.
-- **packages/admin** – Admin dashboard (React + Vite): agent settings, handoff queue, RAG documents, embed snippet. Google sign-in required; admin actions require Firebase custom claims.
+- **packages/api** – Node.js (TypeScript) API: auth, tenants, the shared inbox, and the WhatsApp Cloud API channel.
+- **packages/admin** – Inbox, contacts, and WhatsApp registration. Google sign-in required; admin actions require Firebase custom claims.
+- **packages/widget** – Earlier website chat widget. It is still in the repo, and it is no longer the product surface.
+
+## WhatsApp inbox
+
+1. Sign in and create a business.
+2. Open **WhatsApp** and paste the phone number ID, WhatsApp Business Account ID, and a permanent access token from Meta for Developers.
+3. In the Meta app, set the callback URL and verify token shown on that page, and subscribe to the `messages` field.
+4. Customer messages arrive in **Inbox**. Replies from the composer are sent with the Cloud API.
+5. Optional: turn on the assistant. It replies only on open, unassigned conversations. Assigning a thread to a person pauses it.
+
+Webhook: `GET` and `POST /integrations/whatsapp/webhook/:tenantId`.
+
+Inbox API, all under `/tenants/:tenantId/inbox` and requiring an admin token:
+
+- `GET /conversations?status=open|pending|resolved|all`
+- `GET /conversations/:id/messages`
+- `POST /conversations/:id/messages` with `{ "body": "..." }`
+- `POST /conversations/:id/status` with `{ "status": "resolved" }`
+- `POST /conversations/:id/assign` with `{ "assigneeId": "...", "assigneeEmail": "..." }`
+- `POST /simulate` with `{ "from": "+256700000001", "name": "Amina", "text": "Hello" }`
+- `GET /contacts`
+
+WhatsApp connection, under `/tenants/:tenantId/integrations/whatsapp-cloud`:
+
+- `GET /` returns the webhook URL, verify token, and masked secrets
+- `PUT /` checks the token against Graph API and stores the number
+- `PATCH /assistant` saves auto-reply settings
+- `DELETE /` disconnects the number and keeps existing conversations
+
+Set `API_BASE_URL` to the public API origin so the dashboard shows a callback Meta can reach. Set `GEMINI_API_KEY` to enable assistant replies. Per-number tokens are stored for the business, not in the server environment.
 
 ## Setup
 

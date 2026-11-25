@@ -9,15 +9,15 @@ export default function PrivacyPolicy() {
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '56px 24px 72px', lineHeight: 1.72, color: '#1e293b' }}>
       <h1 style={{ marginTop: 0, marginBottom: 12, fontSize: 40, letterSpacing: '-0.02em', color: '#0f172a' }}>Privacy Policy</h1>
       <p style={{ marginTop: 0, color: '#475569' }}>
-        CareMax provides an AI-powered triage chat platform for healthcare organizations. This policy explains how we collect,
-        use, secure, and share information when healthcare teams, patients, and partner organizations use our services.
+        Relay provides a shared customer inbox for businesses, starting with WhatsApp. This policy explains how we collect,
+        use, secure, and share information when businesses, their teammates, and their customers use the service.
       </p>
 
       <div style={sectionStyle}>
         <h2>1. Data We Collect</h2>
         <ul>
           <li>Account and organization profile details (name, role, email, authentication metadata).</li>
-          <li>Triage conversation records, including symptom descriptions, patient-provided context, and chat transcripts.</li>
+          <li>Customer conversation records, including WhatsApp messages, phone numbers, and display names.</li>
           <li>Operational and diagnostic telemetry such as usage logs, request timing, and security events.</li>
           <li>Configuration data entered by SaaS administrators for legal policies, support contacts, and escalation routing.</li>
         </ul>
@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
       <div style={sectionStyle}>
         <h2>2. How We Use Data</h2>
         <ul>
-          <li>Deliver triage workflows, handoff tools, and conversational support to authorized care teams.</li>
+          <li>Deliver the shared inbox, team replies, and optional assistant replies to the business that owns the account.</li>
           <li>Maintain platform reliability, monitor abuse, and strengthen system security controls.</li>
           <li>Generate analytics and quality improvements for AI safety, response consistency, and support operations.</li>
           <li>Comply with lawful requests and healthcare-related data governance obligations.</li>
@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
       <div style={sectionStyle}>
         <h2>3. Data Sharing and Subprocessors</h2>
         <p>
-          CareMax shares data only with approved infrastructure and AI service providers required to run the platform,
+          Relay shares data only with approved infrastructure, WhatsApp, and AI service providers required to run the platform,
           such as hosting, observability, and language model vendors. We apply contractual, technical, and organizational
           safeguards to these integrations and do not sell personal data.
         </p>
@@ -62,7 +62,7 @@ export default function PrivacyPolicy() {
       <div style={sectionStyle}>
         <h2>6. Privacy Contacts</h2>
         <p>
-          For privacy or data protection inquiries, contact our compliance team at <strong>privacy@caremax.health</strong>.
+          For privacy or data protection inquiries, contact our compliance team at <strong>privacy@relay.app</strong>.
           For urgent support, use <strong>+256 782 830524</strong> or <strong>+256 753 190830</strong>.
         </p>
       </div>

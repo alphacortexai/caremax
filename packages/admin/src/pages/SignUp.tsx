@@ -82,10 +82,10 @@ export default function SignUp({ onSuccess }: Props) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 800, color: 'white', fontSize: 28, margin: '0 auto 20px',
             boxShadow: '0 8px 16px rgba(14, 165, 233, 0.3)'
-          }}>C</div>
+          }}>R</div>
           <h1 style={{ margin: '0 0 10px 0', fontSize: 32, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em' }}>Create Account</h1>
           <p style={{ color: '#64748b', fontSize: 16, margin: 0 }}>
-            Join CareMax to modernize your clinical triage.
+            Register your business and connect a WhatsApp number.
           </p>
         </div>
 
@@ -121,7 +121,7 @@ export default function SignUp({ onSuccess }: Props) {
                 className="auth-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@hospital.org"
+                placeholder="name@company.com"
                 autoFocus
               />
             </div>

@@ -14,6 +14,8 @@ import { analyticsRouter } from './routes/analytics.js';
 import { registerRouter } from './routes/register.js';
 import { platformRouter } from './routes/platform.js';
 import { integrationsCallbackRouter, tenantIntegrationsRouter } from './routes/integrations.js';
+import { inboxRouter } from './routes/inbox.js';
+import { whatsAppCloudTenantRouter, whatsAppCloudWebhookRouter } from './routes/whatsapp-cloud.js';
 import { rateLimit } from './middleware/rateLimit.js';
 import { publicRouter } from './routes/public.js';
 import { domainAllowlist } from './middleware/allowlist.js';
@@ -37,7 +39,11 @@ const corsOrigin = allowedFromEnv?.length
   : true;
 app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    (req as express.Request & { rawBody?: Buffer }).rawBody = buf;
+  },
+}));
 
 app.use('/health', healthRouter);
 app.use('/auth', authRouter);
@@ -45,10 +51,13 @@ app.use('/register', registerRouter);
 app.use('/public', publicRouter);
 app.use('/platform', platformRouter);
 app.use('/integrations', integrationsCallbackRouter);
+app.use('/integrations/whatsapp', whatsAppCloudWebhookRouter);
 app.use('/tenants', rateLimit);
 app.use('/tenants', domainAllowlist);
 // Mount tenant-scoped routes first so they are not covered by tenantRouter (which requires auth)
+app.use('/tenants/:tenantId/integrations/whatsapp-cloud', whatsAppCloudTenantRouter);
 app.use('/tenants/:tenantId/integrations', tenantIntegrationsRouter);
+app.use('/tenants/:tenantId/inbox', inboxRouter);
 app.use('/tenants/:tenantId/conversations', conversationRouter);
 app.use('/tenants/:tenantId/upload', uploadRouter);
 app.use('/tenants/:tenantId/agent-config', agentConfigRouter);
@@ -63,7 +72,7 @@ export default app;
 
 export function startApp() {
   const server = app.listen(PORT, () => {
-    console.log(`CareMax API listening on http://localhost:${PORT}`);
+    console.log(`Relay API listening on http://localhost:${PORT}`);
   });
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {

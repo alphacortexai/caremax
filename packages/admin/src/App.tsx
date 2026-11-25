@@ -10,6 +10,8 @@ import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import RegisterOrg from './pages/RegisterOrg';
 import Dashboard from './pages/Dashboard';
+import Inbox from './pages/Inbox';
+import Contacts from './pages/Contacts';
 import AgentSettings from './pages/AgentSettings';
 import AdvancedPromptSettings from './pages/AdvancedPromptSettings';
 import HandoffQueue from './pages/HandoffQueue';
@@ -115,6 +117,16 @@ export default function App() {
       });
   }, [authenticated, lastKnownPlatformAdmin]);
 
+  if (import.meta.env.DEV && window.location.pathname === '/inbox-preview') {
+    return (
+      <TenantProvider value={{ tenantId: 'preview', name: 'Preview Shop', isAdmin: true, email: 'agent@shop.test', uid: 'preview-agent' }}>
+        <div style={{ height: '100vh', width: '100%' }}>
+          <Inbox mode="preview" />
+        </div>
+      </TenantProvider>
+    );
+  }
+
   if (!ready) return <div style={{ padding: 24 }}>Loading...</div>;
   
   // Show landing page or signup when not authenticated
@@ -199,7 +211,10 @@ export default function App() {
     <TenantProvider value={userProfile}>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
+          <Route index element={<Inbox />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="contacts" element={<Contacts />} />
+          <Route path="overview" element={<Dashboard />} />
           <Route path="agent" element={<AgentSettings />} />
           <Route path="visual-diagram" element={<VisualDiagram />} />
           <Route path="conversations" element={<Conversations />} />

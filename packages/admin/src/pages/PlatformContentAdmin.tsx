@@ -98,7 +98,7 @@ export default function PlatformContentAdmin() {
             label='Contact Email'
             value={form.contactEmail}
             onChange={(value) => setForm((prev) => ({ ...prev, contactEmail: value }))}
-            placeholder='support@caremax.health'
+            placeholder='support@relay.app'
             type='email'
           />
           <LabeledInput

@@ -280,7 +280,7 @@ export default function RegisterOrg({ onRegistered }: Props) {
             Register your organization
           </h1>
           <p style={{ color: '#666', fontSize: 15, lineHeight: 1.6, margin: 0 }}>
-            Create your tenant to get started with agent settings, handoff queue, RAG documents, and an embeddable widget.
+            Create your business workspace. You can register a WhatsApp number and answer customers from one inbox.
           </p>
         </div>
 
@@ -301,7 +301,7 @@ export default function RegisterOrg({ onRegistered }: Props) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Acme Medical Clinic"
+              placeholder="e.g. Acme Shop"
               style={{
                 width: '100%',
                 padding: '12px',
@@ -337,7 +337,7 @@ export default function RegisterOrg({ onRegistered }: Props) {
                 const value = e.target.value.toLowerCase().replace(/\s+/g, '-');
                 setSlug(value);
               }}
-              placeholder="e.g. acme-clinic"
+              placeholder="e.g. acme-shop"
               style={{
                 width: '100%',
                 padding: '12px',
