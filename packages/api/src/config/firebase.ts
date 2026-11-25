@@ -1,11 +1,31 @@
 import admin from 'firebase-admin';
 import type { Auth } from 'firebase-admin/auth';
+import type { Firestore } from 'firebase-admin/firestore';
 import { resolve, dirname } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../../../');
+
+export type FirebaseStatus =
+  | { ok: true }
+  | { ok: false; error: string };
+
+let firebaseApp: admin.app.App | undefined;
+let firebaseError: Error | undefined;
+
+function normalizePrivateKey(raw: string): string {
+  let key = raw.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+  key = key.replace(/\\n/g, '\n').trim();
+  if (!key.includes('BEGIN PRIVATE KEY')) {
+    throw new Error('FIREBASE_PRIVATE_KEY must be the service account private key, including the BEGIN PRIVATE KEY line. In Vercel, keep the line breaks as \\n.');
+  }
+  return key;
+}
 
 function initFirebase(): admin.app.App {
   if (admin.apps.length > 0) return admin.app() as admin.app.App;
@@ -30,7 +50,7 @@ function initFirebase(): admin.app.App {
         const key = JSON.parse(readFileSync(jsonPath, 'utf8')) as { project_id?: string };
         projectId = key.project_id;
       } catch {
-        // ignore
+        // The certificate file is still usable without a parsed project id.
       }
     }
   }
@@ -40,20 +60,24 @@ function initFirebase(): admin.app.App {
       process.env.FIREBASE_PROJECT_ID ??
       process.env.GOOGLE_PROJECT_ID ??
       process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-    if (!projectId || !clientEmail || !privateKey) {
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+    const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
+    if (!projectId || !clientEmail || !privateKeyRaw) {
       throw new Error(
-        'Firebase: Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in env (required on Vercel/serverless when the credentials file is not available).'
+        'Firebase is not configured. In the Vercel API project, set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY, then redeploy.'
       );
     }
-    credential = admin.credential.cert({ projectId, clientEmail, privateKey });
-  }
-
-  if (!credential) {
-    throw new Error(
-      'Firebase: Set GOOGLE_APPLICATION_CREDENTIALS (path to JSON file) or, for serverless (e.g. Vercel), set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in env.'
-    );
+    let privateKey: string;
+    try {
+      privateKey = normalizePrivateKey(privateKeyRaw);
+    } catch (error) {
+      throw error instanceof Error ? error : new Error('FIREBASE_PRIVATE_KEY is invalid.');
+    }
+    try {
+      credential = admin.credential.cert({ projectId, clientEmail, privateKey });
+    } catch {
+      throw new Error('FIREBASE_PRIVATE_KEY could not be read. Paste the service account private key and keep its line breaks as \\n.');
+    }
   }
 
   const storageBucket =
@@ -66,9 +90,46 @@ function initFirebase(): admin.app.App {
   });
 }
 
-export const app = initFirebase();
-export const auth: Auth = admin.auth();
-export const db = admin.firestore();
-export const bucket: ReturnType<admin.storage.Storage['bucket']> | null = app.options.storageBucket
-  ? admin.storage().bucket(app.options.storageBucket)
-  : null;
+export function getFirebaseApp(): admin.app.App {
+  if (firebaseApp) return firebaseApp;
+  if (firebaseError) throw firebaseError;
+  try {
+    firebaseApp = initFirebase();
+    return firebaseApp;
+  } catch (error) {
+    firebaseError = error instanceof Error ? error : new Error('Firebase failed to start.');
+    throw firebaseError;
+  }
+}
+
+export function getFirebaseStatus(): FirebaseStatus {
+  try {
+    getFirebaseApp();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Firebase failed to start.' };
+  }
+}
+
+function lazyService<T extends object>(factory: () => T): T {
+  let value: T | undefined;
+  return new Proxy({} as T, {
+    get(_target, property) {
+      if (!value) value = factory();
+      const current = value[property as keyof T];
+      return typeof current === 'function' ? (current as (...args: unknown[]) => unknown).bind(value) : current;
+    },
+  });
+}
+
+export const auth: Auth = lazyService(() => admin.auth(getFirebaseApp()));
+export const db: Firestore = lazyService(() => admin.firestore(getFirebaseApp()));
+
+export function getStorageBucket(): ReturnType<admin.storage.Storage['bucket']> | null {
+  try {
+    const app = getFirebaseApp();
+    return app.options.storageBucket ? admin.storage(app).bucket(app.options.storageBucket) : null;
+  } catch {
+    return null;
+  }
+}

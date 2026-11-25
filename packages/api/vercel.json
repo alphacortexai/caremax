@@ -1,7 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "npm run build",
-  "rewrites": [{ "source": "/(.*)", "destination": "/$1" }],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "express",
   "functions": {
     "api/index.ts": {
       "memory": 1024,

@@ -19,6 +19,7 @@ import { whatsAppCloudTenantRouter, whatsAppCloudWebhookRouter } from './routes/
 import { rateLimit } from './middleware/rateLimit.js';
 import { publicRouter } from './routes/public.js';
 import { domainAllowlist } from './middleware/allowlist.js';
+import { getFirebaseStatus } from './config/firebase.js';
 
 const app: express.Application = express();
 const PORT = process.env.PORT ?? 3001;
@@ -45,6 +46,17 @@ app.use(express.json({
   },
 }));
 
+app.get('/', (_req, res) => {
+  const firebase = getFirebaseStatus();
+  res.status(firebase.ok ? 200 : 503).json({
+    status: firebase.ok ? 'ok' : 'degraded',
+    service: 'relay-api',
+    channel: 'whatsapp',
+    firebase: firebase.ok ? 'ok' : firebase.error,
+    health: '/health',
+  });
+});
+
 app.use('/health', healthRouter);
 app.use('/auth', authRouter);
 app.use('/register', registerRouter);
@@ -67,6 +79,14 @@ app.use('/tenants/:tenantId/agent-records', agentRecordsRouter);
 app.use('/tenants/:tenantId/agent-notes', agentNotesRouter);
 app.use('/tenants/:tenantId/analytics', analyticsRouter);
 app.use('/tenants', tenantRouter);
+
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const message = error instanceof Error ? error.message : 'Request failed';
+  console.error('API request error:', message);
+  if (!res.headersSent) {
+    res.status(500).json({ error: message });
+  }
+});
 
 export default app;
 
