@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db, auth, bucket } from '../config/firebase.js';
+import { db, auth, getStorageBucket } from '../config/firebase.js';
 import { requireAuth, requirePlatformAdmin } from '../middleware/auth.js';
 import { z } from 'zod';
 import { getTenantBillingStatus } from '../services/billing.js';
@@ -1021,9 +1021,10 @@ platformRouter.delete('/tenants/:tenantId', async (req, res) => {
     }
 
     // Delete storage files
-    if (bucket) {
+    const storageBucket = getStorageBucket();
+    if (storageBucket) {
       try {
-        const [files] = await bucket.getFiles({ prefix: `tenants/${tenantId}/` });
+        const [files] = await storageBucket.getFiles({ prefix: `tenants/${tenantId}/` });
         await Promise.all(files.map((file) => file.delete()));
       } catch (storageError) {
         // Log but don't fail - storage deletion is best effort

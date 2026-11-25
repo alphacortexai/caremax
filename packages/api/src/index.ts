@@ -16,5 +16,8 @@ const envPaths = [
 ].filter((p) => existsSync(p));
 envPaths.forEach((p, i) => config({ path: p, override: i > 0 }));
 
-const { startApp } = await import('./app.js');
-startApp();
+const { default: app, startApp } = await import('./app.js');
+export default app;
+if (!process.env.VERCEL) {
+  startApp();
+}

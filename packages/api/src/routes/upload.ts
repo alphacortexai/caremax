@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { bucket } from '../config/firebase.js';
+import { getStorageBucket } from '../config/firebase.js';
 import { requireTenantParam } from '../middleware/auth.js';
 import { randomUUID } from 'crypto';
 
@@ -10,6 +10,7 @@ export const uploadRouter: Router = Router({ mergeParams: true });
 uploadRouter.use(requireTenantParam);
 
 uploadRouter.post('/', upload.single('file'), async (req, res) => {
+  const bucket = getStorageBucket();
   if (!bucket) {
     res.status(503).json({ error: 'Storage not configured. Set storageBucket in Firebase or FIREBASE_STORAGE_BUCKET in .env' });
     return;
