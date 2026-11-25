@@ -69,7 +69,7 @@ export default function Dashboard() {
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ margin: '0 0 8px 0', fontSize: isMobile ? 24 : 32 }}>Dashboard</h1>
       <p style={{ color: '#64748b', fontSize: isMobile ? 15 : 16, lineHeight: 1.6, marginBottom: 24 }}>
-        Welcome to CareMax. Configure your agent settings, manage live handoffs, and integrate the chat widget into your website.
+        This overview is from the earlier workspace. Customer replies now live in the WhatsApp inbox.
       </p>
 
       {billing && (

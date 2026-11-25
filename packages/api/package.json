@@ -9,6 +9,7 @@
     "dev:alt": "node --import tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "test": "tsx --test src/services/channels/whatsapp-cloud.test.ts",
     "set-admin": "node scripts/set-admin-claim.mjs"
   },
   "dependencies": {

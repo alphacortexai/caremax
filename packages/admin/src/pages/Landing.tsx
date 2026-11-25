@@ -95,7 +95,7 @@ export default function Landing() {
   const [showVideo, setShowVideo] = useState(false);
   const [plans, setPlans] = useState<PublicBillingPlan[]>([]);
   const [publicContent, setPublicContent] = useState<PublicContent>({
-    contactEmail: 'support@caremax.health',
+    contactEmail: 'support@relay.app',
     contactPhonePrimary: '+256 700 000 000',
     contactPhoneSecondary: '+256 753 190 830',
     enableLandingVanta: false,
@@ -190,8 +190,8 @@ export default function Landing() {
       <header className="landing-header" style={{ padding: isVerySmall ? '12px 16px' : isMobile ? '16px 24px' : '20px 48px' }}>
         <div className="landing-container landing-header-content">
           <div className="brand-wrap">
-            <div className="brand-icon">C</div>
-            <h1>CareMax</h1>
+            <div className="brand-icon">R</div>
+            <h1>Relay</h1>
           </div>
           <nav className="landing-nav-links">
             <button onClick={() => navigate('/login')} disabled={loading} className="nav-ghost-btn">Sign In</button>
@@ -204,14 +204,14 @@ export default function Landing() {
         <section className={`hero-section${publicContent.enableLandingVanta ? ' vanta-enabled' : ''}`}>
           {publicContent.enableLandingVanta && <div ref={heroVantaRef} className="hero-vanta-bg" />}
           <div className="landing-container hero-content animate-fade-in">
-            <div className="hero-badge">Healthcare AI • Secure • Scalable</div>
+            <div className="hero-badge">WhatsApp inbox • One team • AI replies</div>
             <h2>
-              Professional AI Triage <br />
-              <span>for Modern Care Teams</span>
+              Every customer chat <br />
+              <span>in one WhatsApp inbox</span>
             </h2>
             <p>
-              CareMax helps healthcare organizations run patient-first triage conversations, route urgent cases faster,
-              and keep every team aligned with secure, clinically aware AI workflows.
+              Relay lets a business register its WhatsApp number and answer every customer from one shared inbox.
+              Teammates reply together, and an assistant can take the first response.
             </p>
             <div className="hero-actions">
               <button onClick={() => navigate('/signup')} disabled={loading} className="cta-primary">Start Free Trial</button>
@@ -225,28 +225,28 @@ export default function Landing() {
             <div className="landing-container">
               <div style={{ textAlign: 'center', marginBottom: 60 }} className="animate-fade-in delay-1">
                 <h3 className="section-title">Platform Highlights</h3>
-                <p className="section-subtitle">Built for healthcare operations, clinical quality, and trusted patient communications.</p>
+                <p className="section-subtitle">One messaging engine, starting with WhatsApp. More channels can plug into the same inbox later.</p>
               </div>
               <div className="landing-features-grid animate-fade-in delay-2">
                 <div className="feature-card">
-                  <div className="feature-icon">🩺</div>
-                  <h4 className="feature-title">AI Triage Intelligence</h4>
-                  <p className="feature-description">Assess symptoms, collect structured context, and route patients with configurable risk pathways.</p>
+                  <div className="feature-icon">💬</div>
+                  <h4 className="feature-title">Shared WhatsApp inbox</h4>
+                  <p className="feature-description">Customer messages from your registered number arrive in one thread list, with open, pending, and resolved states.</p>
                 </div>
                 <div className="feature-card">
                   <div className="feature-icon">🔐</div>
-                  <h4 className="feature-title">Secure by Design</h4>
-                  <p className="feature-description">Role-based access, audit visibility, and controlled integrations for high-trust healthcare delivery.</p>
+                  <h4 className="feature-title">Official Cloud API</h4>
+                  <p className="feature-description">Connect a phone number ID and access token. Inbound webhooks and outbound replies use WhatsApp’s official API.</p>
                 </div>
                 <div className="feature-card">
                   <div className="feature-icon">🤝</div>
-                  <h4 className="feature-title">Human Handoff</h4>
-                  <p className="feature-description">Escalate conversations to live care teams with context handover and continuity built in.</p>
+                  <h4 className="feature-title">Team replies</h4>
+                  <p className="feature-description">Assign a conversation to a teammate. Assignment pauses the assistant so a person owns the thread.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon">📊</div>
-                  <h4 className="feature-title">Operational Visibility</h4>
-                  <p className="feature-description">Track usage, response quality, and service demand to improve staffing and patient outcomes.</p>
+                  <div className="feature-icon">✨</div>
+                  <h4 className="feature-title">Assistant on your terms</h4>
+                  <p className="feature-description">Turn on auto-reply with your business name and instructions. The assistant hands over when a person is needed.</p>
                 </div>
               </div>
             </div>
@@ -256,7 +256,7 @@ export default function Landing() {
             <div className="landing-container">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
                 <h3 className="section-title">Billing Plans</h3>
-                <p className="section-subtitle">Flexible plans for clinics, care teams, and enterprise health operations.</p>
+                <p className="section-subtitle">Plans for shops, support teams, and businesses that answer customers on WhatsApp.</p>
               </div>
               <div className="pricing-grid">
                 {displayPlans.map((pkg, idx) => (
@@ -288,13 +288,13 @@ export default function Landing() {
         <div className="landing-container footer-content" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
           <div className="footer-brand-block">
             <div className="brand-wrap">
-              <div className="brand-icon small">C</div>
-              <span className="footer-brand">CareMax</span>
+              <div className="brand-icon small">R</div>
+              <span className="footer-brand">Relay</span>
             </div>
             <p className="footer-details">{publicContent.contactEmail} • {publicContent.contactPhonePrimary}</p>
             <p className="footer-details">{publicContent.contactPhoneSecondary}</p>
           </div>
-          <p>© 2026 CareMax Health Technologies. All rights reserved.</p>
+          <p>© 2026 Relay. All rights reserved.</p>
           <div className="footer-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-of-service">Terms of Service</Link>

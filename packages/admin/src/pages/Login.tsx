@@ -71,10 +71,10 @@ export default function Login({ onSuccess }: Props) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 800, color: 'white', fontSize: 22, margin: '0 auto 14px',
             boxShadow: '0 6px 12px rgba(56, 189, 248, 0.25)'
-          }}>C</div>
+          }}>R</div>
           <h1 style={{ margin: '0 0 8px 0', fontSize: 28, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em' }}>Welcome Back</h1>
           <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>
-            Sign in to manage your clinical triage dashboard.
+            Sign in to the shared WhatsApp inbox.
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default function Login({ onSuccess }: Props) {
               className="auth-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@hospital.org"
+              placeholder="name@company.com"
               autoFocus
             />
           </div>
